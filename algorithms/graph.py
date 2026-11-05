@@ -1,7 +1,7 @@
 #imports
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 # this file is dedicated to initializing the graph we plan to use and optimize a path for, both classically and "quantumly". 
 # the graph represents a set of nodes and edges, we can imagine nodes as cities and edges as roads. The goal right now to start is to find the shortest path
@@ -37,6 +37,41 @@ class map:
             new_edge = edge(node1, node2)
             self.edges.append(new_edge)
 
+# function to plot the graph and highlight the future shortest paths, right now it is empty
+def _plot_graph(map_object, highlighted_path):
+    path_edges = {
+        frozenset((start, end))
+        for start, end in zip(highlighted_path, highlighted_path[1:])
+    }
+    path_nodes = set(highlighted_path)
+
+    plt.figure()
+    plt.scatter(
+        [node.x for node in map_object.nodes],
+        [node.y for node in map_object.nodes],
+        color="steelblue",
+        zorder=2,
+    )
+    for edge in map_object.edges:
+        is_path_edge = frozenset((edge.node1.name, edge.node2.name)) in path_edges
+        plt.plot(
+            [edge.node1.x, edge.node2.x],
+            [edge.node1.y, edge.node2.y],
+            color="red" if is_path_edge else "black",
+            linewidth=3 if is_path_edge else 1,
+            zorder=1 if is_path_edge else 0,
+        )
+    for node in map_object.nodes:
+        if node.name in path_nodes:
+            plt.scatter(node.x, node.y, color="red", s=100, zorder=3)
+        plt.text(node.x, node.y, node.name, fontsize=12, ha="center", va="bottom")
+
+    plt.title("Map")
+    plt.xlabel("X Coordinate")
+    plt.ylabel("Y Coordinate")
+    plt.grid()
+    plt.show()
+
 # make an example map to test the graph class
 example_map = map()
 
@@ -68,22 +103,5 @@ example_map.add_edge("G", "F")
 example_map.add_edge("G", "H")
 example_map.add_edge("G", "E")
 
-# no line crossing edges, but the graph is not fully connected. There are multiple paths between nodes, but not all nodes are reachable from all other nodes.
-
-# plotting the graph
-plot_x = [node.x for node in example_map.nodes]
-plot_y = [node.y for node in example_map.nodes]
-plt.scatter(plot_x, plot_y)
-
-for edge in example_map.edges:
-    plt.plot([edge.node1.x, edge.node2.x], [edge.node1.y, edge.node2.y], 'k-')
-
-# node labels for visualization
-for node in example_map.nodes:
-    plt.text(node.x, node.y, node.name, fontsize=12, ha='center', va='bottom')
-
-plt.title("Example Map (larger than will be used)")
-plt.xlabel("X Coordinate")
-plt.ylabel("Y Coordinate")
-plt.grid()
-plt.show()
+# plot example map
+#_plot_graph(example_map, highlighted_path=[])
