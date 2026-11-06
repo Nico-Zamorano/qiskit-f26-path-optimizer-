@@ -1,7 +1,6 @@
-# Translates the map from graph.py into a QuadraticProgram (the input Qiskit's QAOA tools expect).
-# One binary variable per edge: x_i = 1 means the route uses that edge.
-# Cost = total (normalized) distance. Constraints = flow conservation at every node.
-# Also contains a brute-force solver to verify the problem BEFORE running any quantum code.
+# translates the map from graph.py into a QuadraticProgram (the input Qiskit's QAOA tools expect).
+# one binary variable per edge: x_i = 1 means the route uses that edge.
+# cost = total (normalized) distance. Constraints = flow conservation at every node.
 
 import itertools
 import qiskit_optimization
