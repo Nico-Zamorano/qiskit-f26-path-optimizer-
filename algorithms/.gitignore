@@ -1,7 +1,0 @@
-from qiskit_ibm_runtime import QiskitRuntimeService
-
-QiskitRuntimeService.save_account(
-    token="ApiKey-c8b311e7-8d43-461b-853c-c7ec10372402",
-    channel="ibm_quantum_platform", 
-    overwrite=True,
-)
