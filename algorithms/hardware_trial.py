@@ -13,6 +13,12 @@ import graph
 import qubo
 import classical
 
+# ---------------- TEMPORARY ACCOUNT INFO ----------------
+IBM_TOKEN = "lByIrrGueIXbMirZIfOvbMvcYkkIcQYop8FiI1C0X4q6"
+IBM_INSTANCE = "crn:v1:bluemix:public:quantum-computing:us-east:a/6c36eeab611d4a1783e67a7d1af8b674:5ac4719a-f941-432a-b713-2ff6c44b14a4::"  
+IBM_CHANNEL = "ibm_quantum_platform"
+# --------------------------------------------------------
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 
 REPS = 1
@@ -29,12 +35,16 @@ def run_on_hardware(qp, optimal_point, reps, shots):
     circuit = circuit.assign_parameters(optimal_point)
 
     print("1. Connecting to IBM...")
-    service = QiskitRuntimeService(channel="ibm_quantum_platform", instance=INSTANCE)
+    service = QiskitRuntimeService(channel=IBM_CHANNEL, token=IBM_TOKEN, instance=IBM_INSTANCE)
     backend = service.least_busy(operational=True, simulator=False,
                                  min_num_qubits=circuit.num_qubits)
     print("2. Backend chosen:", backend.name)
 
-    pm = generate_preset_pass_manager(backend=backend, optimization_level=3)
+    pm = generate_preset_pass_manager(
+    backend=backend,
+    optimization_level=3,
+    translation_method="translator",
+)
     isa_circuit = pm.run(circuit)
     print("3. Transpiled. Gate counts:", dict(isa_circuit.count_ops()))
 
