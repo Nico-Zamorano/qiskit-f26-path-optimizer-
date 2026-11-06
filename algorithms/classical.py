@@ -2,8 +2,12 @@
 # this was researched instead of developed from scratch, as it is a well known and well documented algorithm.
 # it used to test the graph.py file and to compare to our quantum implementation of the shortest path problem.
 
+import itertools
+
 import graph
 import matplotlib.pyplot as plt
+
+from qubo import decode_path
 
 class Dijkstra:
     def __init__(self, map_object):
@@ -85,3 +89,17 @@ print(
     f"Shortest path from {start_node} to {end_node}:",
     " -> ".join(shortest_path), 
 )
+
+
+# brute force method to find the shortest path
+def brute_force(qp, arcs, start, end):
+    """Try all 2^E bitstrings. Returns (best_x, best_cost, best_path). Ground truth for the QUBO."""
+    best_x, best_cost = None, float("inf")
+    for bits in itertools.product([0, 1], repeat=len(arcs)):
+        x = list(bits)
+        if not qp.get_feasibility_info(x)[0]:
+            continue
+        cost = qp.objective.evaluate(x)
+        if cost < best_cost:
+            best_x, best_cost = x, cost
+    return best_x, best_cost, decode_path(best_x, arcs, start, end)

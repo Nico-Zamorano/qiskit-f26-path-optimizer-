@@ -4,6 +4,7 @@
 # Also contains a brute-force solver to verify the problem BEFORE running any quantum code.
 
 import itertools
+import qiskit_optimization
 from qiskit_optimization import QuadraticProgram
 
 
@@ -21,17 +22,21 @@ def get_arcs(map_object):
 def build_qubo(map_object, start, end, normalize=True):
     """Build the QuadraticProgram. Returns (qp, arcs); arcs[i] matches variable x{i}."""
     arcs = get_arcs(map_object)
-    costs = [c for _, _, c in arcs]
+    costs = [c for _ , _ , c in arcs]
     if normalize:  # keeps costs near 0-1 so the QAOA angle landscape is friendlier
         m = max(costs)
         costs = [c / m for c in costs]
 
+    # the QUBO is a QuadraticProgram with one binary variable per arc, a linear objective 
+    # function, and linear equality constraints for flow conservation at each node.
     qp = QuadraticProgram("shortest_path")
+
+    # this loop creates a binary variable for each arc in the graph
     for i in range(len(arcs)):
         qp.binary_var(name=f"x{i}")
     qp.minimize(linear=costs)
 
-    # Flow conservation: (edges out) - (edges in) = +1 at start, -1 at end, 0 elsewhere
+    # flow conservation: (edges out) - (edges in) = +1 at start, -1 at end, 0 elsewhere
     for node in map_object.nodes:
         n = node.name
         coeffs = {}
@@ -65,25 +70,3 @@ def decode_path(x, arcs, start, end):
         cur = nxt[cur]
         path.append(cur)
     return None
-
-
-def brute_force(qp, arcs, start, end):
-    """Try all 2^E bitstrings. Returns (best_x, best_cost, best_path). Ground truth for the QUBO."""
-    best_x, best_cost = None, float("inf")
-    for bits in itertools.product([0, 1], repeat=len(arcs)):
-        x = list(bits)
-        if not qp.get_feasibility_info(x)[0]:
-            continue
-        cost = qp.objective.evaluate(x)
-        if cost < best_cost:
-            best_x, best_cost = x, cost
-    return best_x, best_cost, decode_path(best_x, arcs, start, end)
-
-
-if __name__ == "__main__":
-    import graph
-    start, end = graph.example_map.nodes[0].name, graph.example_map.nodes[-1].name
-    qp, arcs = build_qubo(graph.example_map, start, end)
-    print(qp.prettyprint())
-    x, cost, path = brute_force(qp, arcs, start, end)
-    print("Brute-force best path:", " -> ".join(path), "| normalized cost:", round(cost, 4))

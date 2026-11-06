@@ -102,6 +102,3 @@ example_map.add_edge("H", "E")
 example_map.add_edge("G", "F")
 example_map.add_edge("G", "H")
 example_map.add_edge("G", "E")
-
-# plot example map
-#_plot_graph(example_map, highlighted_path=[])

@@ -7,6 +7,7 @@ from qiskit_algorithms import QAOA
 from qiskit_algorithms.optimizers import COBYLA
 from qiskit_algorithms.utils import algorithm_globals
 from qiskit_optimization.algorithms import MinimumEigenOptimizer
+from qiskit import QiskitRuntimeService
 
 import graph
 import qubo
